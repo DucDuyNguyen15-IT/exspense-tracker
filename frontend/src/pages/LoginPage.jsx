@@ -72,7 +72,7 @@ export default function LoginPage() {
             <span style={{ fontSize: '13px', color: 'var(--dim)', marginBottom: '1rem' }}>{t('or')}</span>
             
             <input className="auth-input" type="text" placeholder={t('display_name')} value={regForm.displayName} onChange={e => setRegForm({...regForm, displayName: e.target.value})} required />
-            <input className="auth-input" type="email" placeholder={t('email')} value={regForm.email} onChange={e => setRegForm({...regForm, email: e.target.value})} required />
+            <input className="auth-input" type="text" placeholder={t('email')} value={regForm.email} onChange={e => setRegForm({...regForm, email: e.target.value})} required />
             <input className="auth-input" type="password" placeholder={t('password')} value={regForm.password} onChange={e => setRegForm({...regForm, password: e.target.value})} required />
             <input className="auth-input" type="password" placeholder={t('confirm_password')} value={regForm.confirmPassword} onChange={e => setRegForm({...regForm, confirmPassword: e.target.value})} required />
             
@@ -91,10 +91,10 @@ export default function LoginPage() {
               <div className="social-icon" onClick={() => handleSocialClick('github')} title="Github"><GithubIcon /></div>
               <div className="social-icon" onClick={() => handleSocialClick('x')} title="X"><XIcon /></div>
             </div>
-
+ 
             <span style={{ fontSize: '13px', color: 'var(--dim)', marginBottom: '1rem' }}>{t('or')}</span>
             
-            <input className="auth-input" type="email" placeholder={t('email')} value={loginForm.email} onChange={e => setLoginForm({...loginForm, email: e.target.value})} required />
+            <input className="auth-input" type="text" placeholder={t('email')} value={loginForm.email} onChange={e => setLoginForm({...loginForm, email: e.target.value})} required />
             <input className="auth-input" type="password" placeholder={t('password')} value={loginForm.password} onChange={e => setLoginForm({...loginForm, password: e.target.value})} required />
             
             {error && isActive && <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '10px' }}>{error}</p>}

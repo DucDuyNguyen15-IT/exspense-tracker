@@ -24,13 +24,20 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Auth Helpers
-export const login = (email, password) => signInWithEmailAndPassword(auth, email, password);
-export const register = async (email, password, displayName) => {
+// Auth Helpers - Corrected to use @dexpense.local
+export const login = (username, password) => {
+  // Use @dexpense.local to match your existing accounts
+  const email = username.includes('@') ? username : `${username.trim().toLowerCase()}@dexpense.local`;
+  return signInWithEmailAndPassword(auth, email, password);
+};
+
+export const register = async (username, password, displayName) => {
+  const email = `${username.trim().toLowerCase()}@dexpense.local`;
   const res = await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(res.user, { displayName });
   return res;
 };
+
 export const logout = () => signOut(auth);
 export const loginWithGoogle = () => {
   const provider = new GoogleAuthProvider();
