@@ -5,7 +5,7 @@ const BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 async function getToken() {
   const user = auth.currentUser;
   if (!user) throw new Error("Not authenticated");
-  return user.getIdToken(); // auto-refreshes if expired
+  return user.getIdToken();
 }
 
 async function handleResponse(res) {
@@ -28,13 +28,17 @@ async function authFetch(path, options = {}) {
   return handleResponse(res);
 }
 
-// Auth
-export const getMe = () => authFetch("/auth/me");
+export const fetchExpenses = (month, year) => {
+  let url = "/expenses/";
+  if (month && year) url += `?month=${month}&year=${year}`;
+  return authFetch(url);
+};
 
-// Expenses
-export const fetchExpenses = () => authFetch("/expenses/");
-export const fetchSummary = () => authFetch("/expenses/summary");
-export const createExpense = (data) =>
-  authFetch("/expenses/", { method: "POST", body: JSON.stringify(data) });
-export const deleteExpense = (id) =>
-  authFetch(`/expenses/${id}`, { method: "DELETE" });
+export const fetchSummary = (month, year) => {
+  let url = "/expenses/summary";
+  if (month && year) url += `?month=${month}&year=${year}`;
+  return authFetch(url);
+};
+
+export const createExpense = (data) => authFetch("/expenses/", { method: "POST", body: JSON.stringify(data) });
+export const deleteExpense = (id) => authFetch(`/expenses/${id}`, { method: "DELETE" });

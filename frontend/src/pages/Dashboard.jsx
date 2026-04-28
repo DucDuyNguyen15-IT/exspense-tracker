@@ -1,155 +1,131 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { logout } from "../firebase";
-import {
-  fetchExpenses,
-  fetchSummary,
-  createExpense,
-  deleteExpense,
-} from "../services/api";
+import { fetchExpenses, fetchSummary, createExpense, deleteExpense } from "../services/api";
+import { useAppContext } from "../context/AppContext";
 import ExpenseForm from "../components/ExpenseForm";
 import ExpenseList from "../components/ExpenseList";
 import SummaryStats from "../components/SummaryStats";
 
 export default function Dashboard({ user }) {
+  const { theme, toggleTheme, language, toggleLanguage, t } = useAppContext();
   const [expenses, setExpenses] = useState([]);
-  const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
-  
-  // Toast state: { msg, type }
-  const [toast, setToast] = useState(null);
-  
-  // Month selector state
-  const currentDate = new Date();
-  const [month, setMonth] = useState({ m: currentDate.getMonth() + 1, y: currentDate.getFullYear() });
-
-  const showToast = (msg, type = "success") => {
-    setToast({ msg, type });
-    setTimeout(() => {
-      // Small delay to allow CSS animation to finish before removing from DOM
-      // (Simplified approach, in real app might need animationend event)
-      setToast(null);
-    }, 3000);
-  };
+  const [month, setMonth] = useState({ m: new Date().getMonth() + 1, y: new Date().getFullYear() });
 
   const loadData = useCallback(async () => {
-    setLoading(true);
     try {
-      const [exp, sum] = await Promise.all([fetchExpenses(), fetchSummary()]);
-      setExpenses(exp);
-      setSummary(sum);
+      const exp = await fetchExpenses(month.m, month.y);
+      setExpenses(exp || []);
     } catch (e) {
-      showToast(e.message, "error");
+      console.error("Dashboard Load Error:", e);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [month]);
 
   useEffect(() => {
+    setLoading(true);
     loadData();
   }, [loadData]);
-
-  // Scroll reveal - Intersection Observer
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((el) => {
-        if (el.isIntersecting) {
-          el.target.classList.add('visible');
-          observer.unobserve(el.target);
-        }
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-
-    const elements = document.querySelectorAll('[data-reveal]');
-    elements.forEach((el) => observer.observe(el));
-
-    return () => {
-      elements.forEach((el) => observer.unobserve(el));
-    };
-  }, [loading, expenses]); // re-run observer when data changes
 
   const handleCreate = async (data) => {
     try {
       await createExpense(data);
-      showToast("Đã thêm giao dịch thành công!", "success");
-      await loadData();
+      loadData();
     } catch (e) {
-      showToast("Lỗi khi thêm giao dịch: " + e.message, "error");
+      alert(e.message);
     }
   };
 
   const handleDelete = async (id) => {
+    if (!window.confirm(t('confirm_delete'))) return;
     try {
       await deleteExpense(id);
-      showToast("Đã xóa giao dịch!", "success");
-      await loadData();
+      loadData();
     } catch (e) {
-      showToast("Lỗi khi xóa giao dịch: " + e.message, "error");
+      alert(e.message);
     }
   };
 
-  // Month navigation
   const prevMonth = () => setMonth(prev => prev.m === 1 ? { m: 12, y: prev.y - 1 } : { m: prev.m - 1, y: prev.y });
   const nextMonth = () => setMonth(prev => prev.m === 12 ? { m: 1, y: prev.y + 1 } : { m: prev.m + 1, y: prev.y });
 
-  // Filter expenses by selected month
-  // Note: currently doing this on the frontend as the API doesn't support query params yet
-  const filteredExpenses = expenses.filter(e => {
-    if (!e.date) return false;
-    const dateObj = new Date(e.date);
-    return (dateObj.getMonth() + 1) === month.m && dateObj.getFullYear() === month.y;
-  });
-
   return (
-    <div className="app-shell" data-reveal>
+    <div className="app-shell" style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       <div className="main-area">
         <header className="topbar">
-          <div className="logo">D-Expense</div>
+          <div className="logo" style={{ background: 'linear-gradient(to right, #6366f1, #f43f5e)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontWeight: 800, fontSize: '1.6rem' }}>D-Expense</div>
           
-          {/* Month selector ở giữa */}
           <div className="month-selector">
             <button className="month-btn" onClick={prevMonth}>‹</button>
-            <span className="month-label">
-              Tháng {month.m}/{month.y}
-            </span>
+            <span className="month-label" style={{ fontWeight: 700 }}>{t('month')} {month.m}/{month.y}</span>
             <button className="month-btn" onClick={nextMonth}>›</button>
           </div>
 
-          <div className="user-area">
-            {user.photoURL && (
-              <img src={user.photoURL} className="avatar" alt={user.displayName || "Avatar"} />
-            )}
-            <span className="username">{user.displayName || user.email}</span>
-            <button className="btn-secondary" onClick={logout} style={{ padding: "6px 12px", fontSize: "12px", border: "none" }}>
-              Đăng xuất
-            </button>
+          <div className="user-area" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            {/* Toggles Group */}
+            <div style={{ display: 'flex', gap: '0.8rem', paddingRight: '1.5rem', borderRight: '1px solid var(--border)' }}>
+              <div className={`switch-track ${theme === 'light' ? 'active' : ''}`} onClick={toggleTheme} style={{ transform: 'scale(0.9)' }}>
+                <span className="switch-icon left">🌙</span>
+                <span className="switch-icon right">☀️</span>
+                <div className="switch-thumb"></div>
+              </div>
+              <div className={`switch-track ${language === 'en' ? 'active' : ''}`} onClick={toggleLanguage} style={{ transform: 'scale(0.9)' }}>
+                <span className="switch-icon left">VI</span>
+                <span className="switch-icon right">EN</span>
+                <div className="switch-thumb"></div>
+              </div>
+            </div>
+
+            {/* Profile Card */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text)' }}>{user?.displayName || 'User'}</div>
+                <button onClick={logout} style={{ background: 'none', border: 'none', color: 'var(--coral)', fontSize: '11px', cursor: 'pointer', fontWeight: 600, padding: 0 }}>{t('logout')}</button>
+              </div>
+              {user && user.photoURL ? (
+                <img src={user.photoURL} alt="User" style={{ width: 44, height: 44, borderRadius: '50%', border: '2px solid var(--indigo)', padding: '2px' }} />
+              ) : (
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--surface2)', display: 'grid', placeItems: 'center', fontSize: '1.2rem', border: '2px solid var(--border)' }}>👤</div>
+              )}
+            </div>
           </div>
         </header>
 
         <main className="content">
-          <SummaryStats summary={summary} loading={loading} currentMonth={month} expenses={filteredExpenses} />
+          <SummaryStats expenses={expenses} loading={loading} />
+          
+          <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.8fr', gap: '2.5rem', marginTop: '1.5rem' }}>
+            
+            {/* Column 1: Actions */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              <ExpenseForm onSubmit={handleCreate} />
+              
+              <div className="stat-card" style={{ borderLeft: '4px solid var(--indigo)' }}>
+                <h4 style={{ marginBottom: '1rem', color: 'var(--indigo)', display: 'flex', alignItems: 'center', gap: '8px' }}>💡 {language === 'vi' ? 'Mẹo chi tiêu' : 'Spending Tip'}</h4>
+                <p style={{ fontSize: '13px', color: 'var(--dim)', lineHeight: '1.6' }}>
+                  {language === 'vi' 
+                    ? 'Hãy luôn ghi lại các khoản chi tiêu nhỏ nhất để có cái nhìn tổng quan nhất về tài chính của bạn.' 
+                    : 'Always record even the smallest expenses to get the most comprehensive view of your finances.'}
+                </p>
+              </div>
+            </div>
 
-          <div className="dashboard-grid">
-            <ExpenseList
-              expenses={filteredExpenses}
-              loading={loading}
-              onDelete={handleDelete}
-            />
-            <ExpenseForm onSubmit={handleCreate} />
+            {/* Column 2: History & Trends */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+              <div className="stat-card">
+                <h3 style={{ marginBottom: '1.5rem' }}>📊 {t('trend')}</h3>
+                <div style={{ height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface2)', borderRadius: '24px', color: 'var(--dim)', fontSize: '14px', border: '1px dashed var(--border)' }}>
+                   {language === 'vi' ? 'Biểu đồ đang được chuẩn bị...' : 'Trend chart coming soon...'}
+                </div>
+              </div>
+              
+              <ExpenseList expenses={expenses} loading={loading} onDelete={handleDelete} />
+            </div>
+
           </div>
         </main>
       </div>
-
-      {toast && (
-        <div className="toast-container">
-          <div className={`toast ${toast.type}`}>
-            <span className="toast-icon">
-              {toast.type === 'success' ? '✓' : toast.type === 'error' ? '✕' : '⚠'}
-            </span>
-            <span className="toast-msg">{toast.msg}</span>
-            <button className="toast-close" onClick={() => setToast(null)}>×</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
