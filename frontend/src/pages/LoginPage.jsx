@@ -37,9 +37,21 @@ export default function LoginPage() {
     }
   };
 
-  const handleSocialClick = (name) => {
-    if (name === 'google') loginWithGoogle();
-    else showAlert(t('Thông báo'), t('not_supported'));
+  const handleSocialClick = async (name) => {
+    if (name === 'google') {
+      setLoading(true);
+      setError("");
+      try {
+        await loginWithGoogle();
+      } catch (err) {
+        showAlert(t('Lỗi'), err.message);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      showAlert(t('Thông báo'), t('not_supported'));
+    }
   };
 
   return (
@@ -62,7 +74,7 @@ export default function LoginPage() {
           <form className="auth-form" onSubmit={(e) => handleAuth(e, 'reg')}>
             <h1 style={{ fontWeight: 800, fontSize: '2.5rem', marginBottom: '1rem' }}>{t('register_title')}</h1>
             
-            <div className="social-container">
+            <div className="social-container" style={loading ? { pointerEvents: 'none', opacity: 0.6 } : {}}>
               <div className="social-icon" onClick={() => handleSocialClick('google')} title="Google"><GoogleIcon /></div>
               <div className="social-icon" onClick={() => handleSocialClick('fb')} title="Facebook"><FacebookIcon /></div>
               <div className="social-icon" onClick={() => handleSocialClick('github')} title="Github"><GithubIcon /></div>
@@ -85,7 +97,7 @@ export default function LoginPage() {
           <form className="auth-form" onSubmit={(e) => handleAuth(e, 'login')}>
             <h1 style={{ fontWeight: 800, fontSize: '2.5rem', marginBottom: '1rem' }}>{t('login_title')}</h1>
             
-            <div className="social-container">
+            <div className="social-container" style={loading ? { pointerEvents: 'none', opacity: 0.6 } : {}}>
               <div className="social-icon" onClick={() => handleSocialClick('google')} title="Google"><GoogleIcon /></div>
               <div className="social-icon" onClick={() => handleSocialClick('fb')} title="Facebook"><FacebookIcon /></div>
               <div className="social-icon" onClick={() => handleSocialClick('github')} title="Github"><GithubIcon /></div>
