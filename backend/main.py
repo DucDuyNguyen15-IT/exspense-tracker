@@ -5,7 +5,7 @@ import os
 
 load_dotenv()
 
-from routers import auth, expenses, ai
+from routers import auth, expenses, ai, chat
 
 app = FastAPI(title="Floww API", version="1.0.0")
 
@@ -22,6 +22,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(expenses.router)
 app.include_router(ai.router)
+app.include_router(chat.router)
 
 
 @app.get("/")

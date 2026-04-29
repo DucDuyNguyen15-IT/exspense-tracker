@@ -9,7 +9,11 @@ import TransactionCharts from "../components/TransactionCharts";
 import ChatBot from "../components/ChatBot";
 
 export default function Dashboard({ user }) {
-  const { theme, toggleTheme, language, toggleLanguage, t, expenses, isDataLoading: loading, loadData, month, setMonth, chatError } = useAppContext();
+  const { 
+    theme, toggleTheme, language, toggleLanguage, t, 
+    expenses, isDataLoading: loading, loadData, 
+    month, setMonth, chatError, showConfirm, showAlert 
+  } = useAppContext();
 
   useEffect(() => {
     loadData();
@@ -20,18 +24,23 @@ export default function Dashboard({ user }) {
       await createExpense(data);
       loadData();
     } catch (e) {
-      alert(e.message);
+      showAlert(t("Lỗi"), e.message);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm(t("confirm_delete"))) return;
-    try {
-      await deleteExpense(id);
-      loadData();
-    } catch (e) {
-      alert(e.message);
-    }
+    showConfirm(
+      t("Xác nhận xóa"),
+      t("Bạn có chắc chắn muốn xóa giao dịch này không?"),
+      async () => {
+        try {
+          await deleteExpense(id);
+          loadData();
+        } catch (e) {
+          showAlert(t("Lỗi"), e.message);
+        }
+      }
+    );
   };
 
   const prevMonth = () =>
@@ -67,7 +76,7 @@ export default function Dashboard({ user }) {
             <button className="month-btn" onClick={prevMonth}>
               ‹
             </button>
-            <span className="month-label" style={{ fontWeight: 700 }}>
+            <span className="month-label">
               {t("month")} {month.m}/{month.y}
             </span>
             <button className="month-btn" onClick={nextMonth}>

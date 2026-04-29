@@ -62,15 +62,16 @@ class FirestoreService:
                 month_key = dt.strftime("%Y-%m")
                 category = item.get("category", "other")
                 
-                # 1. Tạo Transaction Doc
-                trans_ref = self.db.collection("users").document(user_id).collection("transactions").document()
+                # 1. Tạo Transaction Doc trong Collection 'expenses' (đồng bộ với Dashboard)
+                trans_ref = self.db.collection("expenses").document()
                 batch.set(trans_ref, {
                     "amount": amount,
                     "category": category,
-                    "note": item.get("note", ""),
+                    "description": item.get("note", ""),
                     "date": dt.strftime("%Y-%m-%d"),
                     "type": "income" if intent == "ADD_INCOME" else "expense",
-                    "created_at": firestore.SERVER_TIMESTAMP
+                    "user_id": user_id,
+                    "created_at": datetime.now().isoformat() # Dùng định dạng ISO string như Dashboard
                 })
 
                 # 2. Increment Monthly Summary

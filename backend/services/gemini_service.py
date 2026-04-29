@@ -5,6 +5,10 @@ import asyncio
 from typing import List, Dict, Any, Optional
 import google.generativeai as genai
 from google.api_core import exceptions
+from dotenv import load_dotenv
+
+# Nạp biến môi trường ngay lập tức
+load_dotenv()
 
 # Cấu hình logging
 logger = logging.getLogger(__name__)
@@ -21,7 +25,7 @@ class GeminiParseError(GeminiError):
     pass
 
 class GeminiService:
-    def __init__(self, api_key: str, model_name: str = "gemini-2.0-flash"):
+    def __init__(self, api_key: str, model_name: str = "gemini-2.5-flash"):
         if api_key:
             genai.configure(api_key=api_key)
         self.model_name = model_name
@@ -93,15 +97,18 @@ class GeminiService:
 
         except exceptions.DeadlineExceeded:
             raise GeminiError("Kết nối tới AI quá lâu, vui lòng thử lại.", "TIMEOUT")
-        except exceptions.ResourceExceeded:
-            raise GeminiError("Hệ thống AI đang quá tải (Quota exceeded).", "QUOTA_FULL")
-        except exceptions.ServiceUnavailable:
-            raise GeminiError("Dịch vụ AI đang bảo trì hoặc gặp sự cố mạng.", "NETWORK_ERROR")
         except Exception as e:
+            err_msg = str(e)
+            # Phân loại lỗi chính xác
+            if "API key not valid" in err_msg:
+                raise GeminiError("API Key Gemini không hợp lệ. Vui lòng kiểm tra lại file .env", "INVALID_KEY")
+            if "429" in err_msg or "ResourceExceeded" in err_msg:
+                raise GeminiError("Hệ thống AI đang quá tải hoặc hết Quota miễn phí.", "QUOTA_FULL")
+            
             if isinstance(e, GeminiError):
                 raise e
             logger.exception("Lỗi không xác định tại GeminiService")
-            raise GeminiError(f"Lỗi hệ thống AI: {str(e)}", "INTERNAL_ERROR")
+            raise GeminiError(f"Lỗi hệ thống AI: {err_msg}", "INTERNAL_ERROR")
 
     async def simple_chat(self, prompt: str) -> str:
         """Gọi Gemini cho các phản hồi text thuần túy (không JSON)"""

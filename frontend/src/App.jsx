@@ -4,6 +4,8 @@ import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import { AppProvider } from "./context/AppContext";
 
+import CustomModal from "./components/CustomModal";
+
 export default function App() {
   const [user, setUser] = useState(undefined); // undefined = loading
 
@@ -21,6 +23,7 @@ export default function App() {
   return (
     <AppProvider>
       {user ? <Dashboard user={user} /> : <LoginPage />}
+      <CustomModal />
     </AppProvider>
   );
 }

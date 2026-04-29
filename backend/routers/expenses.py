@@ -13,8 +13,12 @@ def create(payload: ExpenseCreate, user: dict = Depends(get_current_user)):
 
 
 @router.get("/summary")
-def summary(user: dict = Depends(get_current_user)):
-    return expense_service.get_summary(user["uid"])
+def summary(
+    month: Optional[int] = None,
+    year: Optional[int] = None,
+    user: dict = Depends(get_current_user)
+):
+    return expense_service.get_summary(user["uid"], month=month, year=year)
 
 
 @router.get("/", response_model=list[ExpenseResponse])

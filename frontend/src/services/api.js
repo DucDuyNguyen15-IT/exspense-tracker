@@ -101,8 +101,15 @@ export async function sendChatMessage(message) {
   }
 }
 
-export const fetchExpenses = (options = {}) => authFetch("/expenses/", { ...options });
-export const fetchSummary = (options = {}) => authFetch("/expenses/summary", { ...options });
+export const fetchExpenses = (month, year, options = {}) => {
+  const query = month && year ? `?month=${month}&year=${year}` : "";
+  return authFetch(`/expenses/${query}`, { ...options });
+};
+
+export const fetchSummary = (month, year, options = {}) => {
+  const query = month && year ? `?month=${month}&year=${year}` : "";
+  return authFetch(`/expenses/summary${query}`, { ...options });
+};
 
 export const createExpense = (data) => authFetch("/expenses/", { method: "POST", body: JSON.stringify(data) });
 export const deleteExpense = (id) => authFetch(`/expenses/${id}`, { method: "DELETE" });

@@ -68,8 +68,8 @@ def delete_expense(uid: str, expense_id: str) -> bool:
     return True
 
 
-def get_summary(uid: str) -> dict:
-    expenses = get_expenses(uid)
+def get_summary(uid: str, month: Optional[int] = None, year: Optional[int] = None) -> dict:
+    expenses = get_expenses(uid, month=month, year=year)
     total_income = sum(e.amount for e in expenses if e.type == "income")
     total_expense = sum(e.amount for e in expenses if e.type == "expense")
 

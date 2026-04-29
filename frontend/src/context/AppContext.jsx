@@ -100,6 +100,25 @@ export const AppProvider = ({ children }) => {
   ]);
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [chatError, setChatError] = useState(null);
+  
+  // Custom Modal State
+  const [modal, setModal] = useState({ 
+    isOpen: false, 
+    type: "alert", // 'alert' hoặc 'confirm'
+    title: "", 
+    message: "", 
+    onConfirm: null 
+  });
+
+  const showAlert = (title, message) => {
+    setModal({ isOpen: true, type: "alert", title, message, onConfirm: null });
+  };
+
+  const showConfirm = (title, message, onConfirm) => {
+    setModal({ isOpen: true, type: "confirm", title, message, onConfirm });
+  };
+
+  const closeModal = () => setModal(prev => ({ ...prev, isOpen: false }));
 
   useEffect(() => {
     localStorage.setItem("theme", theme);
@@ -128,7 +147,7 @@ export const AppProvider = ({ children }) => {
     try {
       const [expData, sumData] = await Promise.all([
         fetchExpenses(m, y, { signal: controller.signal }),
-        fetchSummary({ signal: controller.signal })
+        fetchSummary(m, y, { signal: controller.signal })
       ]);
       
       // So sánh với ref thay vì state trực tiếp để tránh dependency loop
@@ -172,10 +191,12 @@ export const AppProvider = ({ children }) => {
     theme, toggleTheme, language, toggleLanguage, t,
     expenses, setExpenses, budgets, setBudgets, summary, setSummary,
     isDataLoading, loadData, highlightId, month, setMonth,
-    messages, setMessages, isChatLoading, sendMessage, chatError, clearChat
+    messages, setMessages, isChatLoading, sendMessage, chatError, clearChat,
+    modal, showAlert, showConfirm, closeModal
   }), [
     theme, toggleTheme, language, toggleLanguage, t, expenses, budgets, summary,
-    isDataLoading, loadData, highlightId, month, messages, isChatLoading, sendMessage, chatError, clearChat
+    isDataLoading, loadData, highlightId, month, messages, isChatLoading, sendMessage, chatError, clearChat,
+    modal, showAlert, showConfirm, closeModal
   ]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -48,6 +48,13 @@ body {
   min-height: 100vh; overflow-x: hidden; 
 }
 
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  padding-bottom: 100px; /* Khoảng trống an toàn để không bị ChatBot che mất */
+}
+
 /* --- Auth System --- */
 .auth-container {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;
@@ -270,4 +277,53 @@ body {
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* --- Month Selector --- */
+.month-selector {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  background: var(--surface2);
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  transition: all 0.3s var(--ease);
+}
+
+.month-selector:hover {
+  border-color: var(--indigo);
+  background: var(--surface);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.month-btn {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 1.6rem;
+  cursor: pointer;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+  line-height: 0;
+  padding-bottom: 4px;
+}
+
+.month-btn:hover {
+  background: var(--indigo);
+  color: white;
+  transform: scale(1.1);
+}
+
+.month-label {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--text);
+  min-width: 110px;
+  text-align: center;
+  letter-spacing: 0.5px;
 }
