@@ -10,6 +10,9 @@ from routers import auth, expenses, ai, chat
 app = FastAPI(title="Floww API", version="1.0.0")
 
 origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
+# Tự động thêm các domain phổ biến nếu cần
+if os.getenv("VERCEL_URL"):
+    origins.append(f"https://{os.getenv('VERCEL_URL')}")
 
 app.add_middleware(
     CORSMiddleware,
