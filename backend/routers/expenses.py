@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from routers.auth import get_current_user
 from schemas.expense import ExpenseCreate, ExpenseResponse
@@ -17,8 +18,12 @@ def summary(user: dict = Depends(get_current_user)):
 
 
 @router.get("/", response_model=list[ExpenseResponse])
-def list_expenses(user: dict = Depends(get_current_user)):
-    return expense_service.get_expenses(user["uid"])
+def list_expenses(
+    month: Optional[int] = None,
+    year: Optional[int] = None,
+    user: dict = Depends(get_current_user)
+):
+    return expense_service.get_expenses(user["uid"], month=month, year=year)
 
 
 @router.delete("/{expense_id}", status_code=204)

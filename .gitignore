@@ -23,3 +23,12 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Testing (Added per user request)
+backend/tests/
+backend/pytest.ini
+backend/requirements-dev.txt
+frontend/src/context/ThemeContext.jsx
+frontend/src/context/LanguageContext.jsx
+frontend/src/context/ExpenseContext.jsx
+frontend/src/context/ChatContext.jsx

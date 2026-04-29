@@ -1,5 +1,5 @@
+from typing import Optional
 from datetime import datetime, timezone
-from google.cloud.firestore import FieldFilter
 from services.firebase_service import get_db
 from schemas.expense import ExpenseCreate, ExpenseResponse
 
@@ -31,15 +31,27 @@ def create_expense(uid: str, payload: ExpenseCreate) -> ExpenseResponse:
     return _doc_to_response(doc_ref.id, doc_data)
 
 
-def get_expenses(uid: str) -> list[ExpenseResponse]:
+def get_expenses(uid: str, month: Optional[int] = None, year: Optional[int] = None) -> list[ExpenseResponse]:
+    print(f"DEBUG: Starting get_expenses for UID: {uid}")
     db = get_db()
-    docs = (
-        db.collection(COLLECTION)
-        .where(filter=FieldFilter("user_id", "==", uid))
-        .stream()
-    )
-    expenses = [_doc_to_response(d.id, d.to_dict()) for d in docs]
-    # Sort by date descending in Python to prevent Firestore Composite Index Requirement Error
+    # Simplified query syntax for maximum compatibility
+    docs = db.collection(COLLECTION).where("user_id", "==", uid).stream()
+    
+    expenses = []
+    try:
+        for d in docs:
+            expenses.append(_doc_to_response(d.id, d.to_dict()))
+    except Exception as e:
+        print(f"DEBUG: Error streaming docs: {e}")
+        raise e
+        
+    print(f"DEBUG: Found {len(expenses)} total expenses")
+    
+    if month and year:
+        prefix = f"{year}-{month:02d}"
+        expenses = [e for e in expenses if e.date.startswith(prefix)]
+        print(f"DEBUG: Filtered by {prefix}. Remaining: {len(expenses)}")
+    
     expenses.sort(key=lambda x: x.date, reverse=True)
     return expenses
 

@@ -13,12 +13,21 @@ def get_firebase_app():
     if _app is not None:
         return _app
 
+    # Check if app already initialized by other modules
+    if firebase_admin._apps:
+        _app = firebase_admin.get_app()
+        return _app
+
     cred_json = os.getenv("FIREBASE_CREDENTIALS_JSON")
     cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
     if cred_json:
-        cred_dict = json.loads(cred_json)
-        cred = credentials.Certificate(cred_dict)
+        try:
+            cred_dict = json.loads(cred_json)
+            cred = credentials.Certificate(cred_dict)
+        except Exception as e:
+            print(f"Error parsing FIREBASE_CREDENTIALS_JSON: {e}")
+            raise e
     elif cred_path:
         cred = credentials.Certificate(cred_path)
     else:
