@@ -88,27 +88,57 @@ expense-tracker/
 ## 🚀 Installation & Setup
 
 ### Prerequisites
+
 - Python 3.9+
 - Node.js 18+
-- Firebase Project & Google AI Studio Key
+- A Firebase Project (with Authentication & Firestore enabled)
+- A Google AI Studio API Key ([Get one here](https://aistudio.google.com/))
 
-### 1. Backend Setup
+### 1. Environment Configuration
+
+#### Backend (`backend/.env`)
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+GOOGLE_APPLICATION_CREDENTIALS=serviceAccountKey.json
+ALLOWED_ORIGINS=http://localhost:5173
+```
+
+#### Frontend Environment (`frontend/.env`)
+Create a `.env` file inside the `frontend/` directory with your Firebase project config:
+```env
+VITE_API_URL=http://localhost:8000
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
+
+#### Firebase Service Account
+Place your `serviceAccountKey.json` file (downloaded from Firebase Console → Project Settings → Service accounts) into the `backend/` directory.
+
+### 2. Running the Backend
 ```bash
+# From the project root (expense-tracker/)
+source .venv/bin/activate        # macOS/Linux
+# .venv\Scripts\activate         # Windows
+
 cd backend
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-# Create .env with GEMINI_API_KEY and GOOGLE_APPLICATION_CREDENTIALS
 uvicorn main:app --reload --port 8000
 ```
+> The API will be available at `http://localhost:8000`
+> Swagger UI (API Docs): `http://localhost:8000/docs`
 
-### 2. Frontend Setup
+### 3. Running the Frontend
 ```bash
+# Open a new terminal, from the project root (expense-tracker/)
 cd frontend
 npm install
-# Create .env with Firebase Config
 npm run dev
 ```
+> The app will be available at `http://localhost:5173`
 
 ---
 
@@ -123,6 +153,8 @@ npm run dev
 | `POST` | `/expenses/` | Create new manual transaction |
 | `GET` | `/expenses/summary` | Get financial report summary |
 
+> 📖 Full interactive API documentation is available at `/docs` (Swagger UI) when the backend is running.
+
 ---
 
 ## 📋 Lab 2 Requirements Compliance
@@ -135,6 +167,14 @@ npm run dev
 | Firebase Integration | ✅ Done | Firestore for data, Auth for security |
 | AI Integration | ✅ Done | Gemini 2.5 Flash for smart data entry |
 | GitHub Repository | ✅ Done | Properly initialized with `.gitignore` |
+
+---
+
+## 🎬 Video Demo
+
+[![Watch the Demo](https://img.youtube.com/vi/THAY_VIDEO_ID_VAO_DAY/maxresdefault.jpg)](https://www.youtube.com/watch?v=THAY_VIDEO_ID_VAO_DAY)
+
+> 👆 Click vào ảnh trên để xem video demo trên YouTube.
 
 ---
 
