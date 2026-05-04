@@ -172,7 +172,7 @@ npm run dev
 
 ## 🎬 Video Demo
 
-[![Watch the Demo](https://img.youtube.com/vi/THAY_VIDEO_ID_VAO_DAY/maxresdefault.jpg)](https://www.youtube.com/watch?v=THAY_VIDEO_ID_VAO_DAY)
+[![Watch the Demo](https://img.youtube.com/vi/bcQ6j_xDm5E/maxresdefault.jpg)](https://www.youtube.com/watch?v=bcQ6j_xDm5E)
 
 > 👆 Click vào ảnh trên để xem video demo trên YouTube.
 
